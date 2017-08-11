@@ -118,5 +118,5 @@ goodbye <- function(name = "") {
 #' @return a string with the goodbye
 #' @export
 goodbye2 <- function(name = "") {
-  paste("goodbye", name)
+  paste("goodbye!!!", name)
 }
