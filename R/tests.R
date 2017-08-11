@@ -96,7 +96,7 @@ PriceChange <- function(mat,day,tcoupn,ytm,cyield=0.01){
   #Modified Duration
   md <- mcd/(1+ytm)
   #Price Change
-  pc <- -md*cyield
+  pc <- -md   *   cyield
 
   return (pc)
 }
