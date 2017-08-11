@@ -47,7 +47,7 @@ MacaulayDuration <- function(mat,day,tcoupn, ytm) {
   #Market price
   mprice <- BondPrice(mat,day,tcoupn,ytm)
   #Turn ytm to effective per period
-  ytm <-  182*ytm/360
+  ytm <-  182*ytm / 360
   #Coupon
   coupn <- 182*100*tcoupn/360
   #Day of pricing and maturity date
