@@ -110,3 +110,13 @@ PriceChange <- function(mat,day,tcoupn,ytm,cyield=0.01){
 goodbye <- function(name = "") {
   paste("goodbye", name)
 }
+
+
+#' @title Say goodbye2
+#' @description Receives a name and says goodbye
+#' @param name a string
+#' @return a string with the goodbye
+#' @export
+goodbye2 <- function(name = "") {
+  paste("goodbye", name)
+}
