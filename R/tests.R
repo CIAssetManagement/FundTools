@@ -128,33 +128,30 @@ YTM <- function(mat,day,tcoupn,precio){
 
   #################    Newton method    ###################
 
-  #Denominator of f(x) and f'(x)
-  denom <- function(ytm){
-    if (dcoupn = 182) {
-      denom <- (1 + ytm)^(1:ncoupn)
-    }
-    else {
-      denom <- (1+ytm)^(1-dcoupn/182)
-      denom <- c(denom,(1+ytm)^(2:ncoupn))
-    }
-    return(denom)
-  }
-
   #Function f(x) for the Newton method
   f <- function(ytm){
+    #Numerator of the function
     num <- seq(coupn,ncoupn)
     num[length(num)] <- num[length(num)] + 100
+    #Denominator of the function
+    denom <- function(ytm){
+      if (dcoupn = 182) {
+        denom <- (1 + ytm)^(1:ncoupn)
+      }
+      else {
+        denom <- (1+ytm)^(1-dcoupn/182)
+        denom <- c(denom,(1+ytm)^(2:ncoupn))
+      }
+      return(denom)
+    }
+    #Function
     f_x <- sum(num/denom(ytm))
     return(f_x)
   }
 
   #Function f'(x) for the Newton method
-  f1 <- function(ytm){
-    num <- seq(1,ncoupn,1)*coupn
-    num[length(num)] <- num[length(num)] + 100*ncoupn
-    f1_x <- sum(num/denom(ytm))/(1+ytm)
-    return(-f1_x)
-  }
+  f1 <- -MacaulayDuration(mat,day,tcoupn, ytm)*precio
+  f1 <- f1/(1+ytm)
 
   #Iterations of Newton method
   xn1 <- tcoupn
