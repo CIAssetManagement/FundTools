@@ -102,21 +102,68 @@ PriceChange <- function(mat,day,tcoupn,ytm,cyield=0.01){
 }
 
 
-#' @title Say goodbye
-#' @description Receives a name and says goodbye
-#' @param name a string
-#' @return a string with the goodbye
+#' @title Yield to Maturity of a Bond
+#' @description Calculates the price of a Bond with the maturity date, calculation date, coupon rate and YTM of the Bond
+#' @param mat is the maturity date of the Bond
+#' @param day is the day in which the price is calculated
+#' @param tcoupn is the coupon rate of the bond (annualized)
+#' @param precio is the price of the bond
+#' @return the YTM of the Bond at the calculation date
 #' @export
-goodbye <- function(name = "") {
-  paste("goodbye", name)
+YTM <- function(mat,day,tcoupn,precio){
+  #ytm anualizado
+  #tcoup as decimals
+  #dates as strings
+  #precio as numeric
+
+  #Coupon
+  coupn <- 182*100*tcoupn/360
+  #Day of pricing and maturity date
+  maturity <-  as.Date(mat, format="%Y%m%d")
+  today <- as.Date(day, format="%Y%m%d")
+  #Number of coupons
+  ncoupn <- ceiling(as.numeric(maturity - today)/182)
+  #Days until the next coupon
+  dcoupn <- (182 - as.numeric(maturity - today)) %% 182
+
+  #################    Newton method    ###################
+
+  #Denominator of f(x) and f'(x)
+  denom <- function(ytm){
+    if (dcoupn = 182) {
+      denom <- (1 + ytm)^(1:ncoupn)
+    }
+    else {
+      denom <- (1+ytm)^(1-dcoupn/182)
+      denom <- c(denom,(1+ytm)^(2:ncoupn))
+    }
+    return(denom)
+  }
+
+  #Function f(x) for the Newton method
+  f <- function(ytm){
+    num <- seq(coupn,ncoupn)
+    num[length(num)] <- num[length(num)] + 100
+    f_x <- sum(num/denom(ytm))
+    return(f_x)
+  }
+
+  #Function f'(x) for the Newton method
+  f1 <- function(ytm){
+    num <- seq(1,ncoupn,1)*coupn
+    num[length(num)] <- num[length(num)] + 100*ncoupn
+    f1_x <- sum(num/denom(ytm))/(1+ytm)
+    return(-f1_x)
+  }
+
+  #Iterations of Newton method
+  xn1 <- tcoupn
+  tol <- 1
+  while(tol > 1e-7){
+    xn <- xn1 - (f(xn1)/f1(xn1))
+    tol <- abs(xn - xn1)
+    xn1 <-  xn
+  }
 }
 
 
-#' @title Say goodbye2
-#' @description Receives a name and says goodbye
-#' @param name a string
-#' @return a string with the goodbye
-#' @export
-goodbye2 <- function(name = "") {
-  paste("goodbye!!!", name)
-}
