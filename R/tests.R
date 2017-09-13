@@ -164,3 +164,15 @@ YTM <- function(mat,day,tcoupn,precio){
 }
 
 
+#' @title Bootstrapping
+#' @description Calculates different samples from the sample population.
+#' @param data is the sample population.
+#' @param samp is the number of samples to create.
+#' @param size is the size of the generated samples.
+#' @param remp sampling with replacement, default = TRUE.
+#' @return a matrix with each sample as a column of the matrix.
+#' @export
+bootstrap <- function(data,samp,size, remp = TRUE){
+  datos <- matrix(c(replicate(samp,sample(data,size,replace = remp))),nrow = size, ncol = samp)
+  return(datos)
+}
