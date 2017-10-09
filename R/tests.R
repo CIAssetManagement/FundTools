@@ -80,7 +80,7 @@ MacaulayDuration <- function(mat,day,tcoupn, ytm) {
 #' @param day is the day in which the price is calculated
 #' @param tcoupn is the coupon rate of the bond (annualized)
 #' @param ytm is the Yield to Maturity of the Bond
-#' @return the Macaulay Duration of the Bond
+#' @return the Convexity of the Bond
 #' @export
 Convexity <- function(mat,day,tcoupn, ytm) {
   #ytm anualizado
