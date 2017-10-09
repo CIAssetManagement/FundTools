@@ -74,6 +74,50 @@ MacaulayDuration <- function(mat,day,tcoupn, ytm) {
   return (mcd)
 }
 
+#' @title Duration of a Bond
+#' @description Calculates the Duration of a Bond with the maturity date, calculation date, coupon rate and YTM of the Bond
+#' @param mat is the maturity date of the Bond
+#' @param day is the day in which the price is calculated
+#' @param tcoupn is the coupon rate of the bond (annualized)
+#' @param ytm is the Yield to Maturity of the Bond
+#' @return the Duration of the Bond
+#' @export
+Duration <- function(mat,day,tcoupn, ytm) {
+  #ytm anualizado
+  #tcoup as decimals
+  #dates as strings
+
+  #Market price
+  mprice <- BondPrice(mat,day,tcoupn,ytm)
+  #Turn ytm to effective per period
+  ytm <-  182*ytm / 360
+  #Coupon
+  coupn <- 182*100*tcoupn/360
+  #Day of pricing and maturity date
+  maturity <-  as.Date(mat, format="%Y/%m/%d")
+  today <- as.Date(day, format="%Y/%m/%d")
+  #Number of coupons
+  ncoupn <- ceiling(as.numeric(maturity - today)/182)
+  #Days until the next coupon
+  dcoupn <- (182 - as.numeric(maturity - today)) %% 182
+
+  #Numerator of the Duration formula
+  num <- seq(1,ncoupn,1) * coupn
+  num[length(num)] <- num[length(num)] + 100*ncoupn
+
+  #Denominator of the Duration formula
+  if (dcoupn == 182) {
+    denom <- (1 + ytm)^(1:ncoupn)
+  }
+  else {
+    denom <- (1+ytm)^(1-dcoupn/182)
+    denom <- c(denom,(1+ytm)^(2:ncoupn))
+  }
+  dur <- sum(num/denom)/(1+ytm)
+  dur <- dur/mprice
+  return (conv)
+}
+
 #' @title Convexity of a Bond
 #' @description Calculates the Convexity of a Bond with the maturity date, calculation date, coupon rate and YTM of the Bond
 #' @param mat is the maturity date of the Bond
@@ -105,7 +149,7 @@ Convexity <- function(mat,day,tcoupn, ytm) {
   num <- seq(1,ncoupn,1)^2 * seq(1,ncoupn,1) * coupn
   num[length(num)] <- num[length(num)] + 100*ncoupn*ncoupn^2
 
-  #Denominator of the Macaulay Duration formula
+  #Denominator of the Convexity formula
   if (dcoupn == 182) {
     denom <- (1 + ytm)^(1:ncoupn)
   }
@@ -133,7 +177,7 @@ PriceChange <- function(mat,day,tcoupn,ytm,cyield=0.0001){
   #dates as strings
 
   #Duration
-  dur <-  MacaulayDuration(mat,day,tcoupn,ytm)/(1+ytm)
+  dur <-  Duration(mat,day,tcoupn,ytm)
   #Convexity
   conv <- Convexity(mat,day,tcoupn,ytm)
   #Price
@@ -179,14 +223,14 @@ YTM <- function(mat,day,tcoupn,precio){
 
   #Function f'(x) for the Newton method
   f1 <- function(ytm){
-    f <- -MacaulayDuration(mat,day,tcoupn,ytm)*precio
-    return(f/(1+ytm))
+    f <- -Duration(mat,day,tcoupn,ytm)*precio
+    return(f)
   }
 
   #Iterations of Newton method
   xn1 <- tcoupn
   tol <- 1
-  while(tol > 1e-5){
+  while(tol > 1e-7){
     xn <- xn1 - (f(xn1)/f1(xn1))
     tol <- abs(xn - xn1)
     xn1 <-  xn
