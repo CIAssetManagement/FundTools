@@ -1,6 +1,13 @@
-#' @import dplyr
+devtools::use_package("dplyr")
+devtools::use_package("magrittr")
+devtools::use_package("RMySQL")
+devtools::use_package("tidyr")
+devtools::use_package("DBI")
+devtools::use_package("stats")
+
+#'@import dplyr
 #'
-#' @export
+#'@export
 magrittr::'%>%'
 
 #' @title Get Prices
@@ -24,7 +31,6 @@ get_prices <- function(fecha = NULL, id = NULL){
       query <- paste0(query, " id IN ('", paste(id, collapse="','"), "')")
     }
   }
-  cat(sprintf("fetching query: %s\n", query))
   precios <- DBI::dbGetQuery(con, query)
   DBI::dbDisconnect(con)
   precios %>%
@@ -47,4 +53,20 @@ seq_Date <- function(fecha = NULL){
   if(is.na(last) == TRUE){fechas <- seq.Date(first,Sys.Date(),1)}
   else {fechas <- seq.Date(first,last,1)}
   return(fechas)
+}
+
+#' @title Get Bond's Characteristics
+#' @description Function that does a query from a mysql database in order to obtain characteristics of bonds.
+#' @param id is the id vector of which bonds information must be obtained.
+#' @return a dataframe with Issuing date, Maturity date, Coupon rate, Type of rate, Spread and Grade of the selected Bonds.
+#' @export
+get_bonds <- function(id = NULL){
+  con <- DBI::dbConnect(drv=RMySQL::MySQL(),host="127.0.0.1",user="root", password="CIBANCO.00", dbname="mydb")
+  query <- paste("SELECT id,FechaEmision,FechaVencimiento,TasaCupon,TipoTasa,SobreTasa,Frecuencia FROM bonds ")
+  if(!is.null(id)) {
+    query <- paste0(query, " WHERE ", " id IN ('", paste(id, collapse="','"),"')")
+    }
+  datos <- DBI::dbGetQuery(con, query)
+  DBI::dbDisconnect(con)
+  datos
 }

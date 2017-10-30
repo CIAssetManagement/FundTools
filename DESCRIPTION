@@ -1,10 +1,16 @@
 Package: FundTools
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
+Title: Some title
+Version: 1.0
 Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: Some Description.
 Depends: R (>= 3.3.2)
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
+Imports: dplyr,
+    magrittr,
+    RMySQL,
+    tidyr,
+    DBI,
+    stats

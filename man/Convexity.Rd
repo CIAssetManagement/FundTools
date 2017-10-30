@@ -4,7 +4,7 @@
 \alias{Convexity}
 \title{Convexity of a Bond}
 \usage{
-Convexity(mat, day, tcoupn, ytm)
+Convexity(mat, day, tcoupn, ytm, period = 182)
 }
 \arguments{
 \item{mat}{is the maturity date of the Bond}
@@ -14,6 +14,8 @@ Convexity(mat, day, tcoupn, ytm)
 \item{tcoupn}{is the coupon rate of the bond (annualized)}
 
 \item{ytm}{is the Yield to Maturity of the Bond}
+
+\item{period}{is the time for every coupon payment}
 }
 \value{
 the Convexity of the Bond

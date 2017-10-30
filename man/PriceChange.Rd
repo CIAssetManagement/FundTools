@@ -4,7 +4,7 @@
 \alias{PriceChange}
 \title{Price Change of a Bond}
 \usage{
-PriceChange(mat, day, tcoupn, ytm, cyield = 1e-04)
+PriceChange(mat, day, tcoupn, ytm, period = 182, cyield = 1e-04)
 }
 \arguments{
 \item{mat}{is the maturity date of the Bond}
@@ -14,6 +14,8 @@ PriceChange(mat, day, tcoupn, ytm, cyield = 1e-04)
 \item{tcoupn}{is the coupon rate of the bond (annualized)}
 
 \item{ytm}{is the Yield to Maturity of the Bond}
+
+\item{period}{is the time for every coupon payment}
 
 \item{cyield}{is the change in the yield, by default is set to 1 bps.}
 }

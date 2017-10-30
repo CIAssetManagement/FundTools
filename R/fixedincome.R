@@ -4,28 +4,39 @@
 #' @param day is the day in which the price is calculated
 #' @param tcoupn is the coupon rate of the bond (annualized)
 #' @param ytm is the Yield to Maturity of the Bond
+#' @param period is the time for every coupon payment
 #' @return the price of the Bond at the calculation date
 #' @export
-BondPrice <- function(mat,day,tcoupn,ytm){
+BondPrice <- function(mat,day,tcoupn,ytm,period=182){
   #ytm anualizado
   #tcoup as decimals
   #dates as strings
+  #period in days
 
   #Turn ytm to effective per period
-  ytm <-  182*ytm/360
+  ytm <-  period*ytm/360
   #Coupon
-  coupn <- 182*100*tcoupn/360
+  coupn <- period*100*tcoupn/360
   #Day of pricing and maturity date
-  maturity <-  as.Date(mat, format="%Y/%m/%d")
-  today <- as.Date(day, format="%Y/%m/%d")
+  maturity <-  as.Date(mat, format="%Y-%m-%d")
+  today <- as.Date(day, format="%Y-%m-%d")
   #Number of coupons
-  ncoupn <- ceiling(as.numeric(maturity - today)/182)
+  ncoupn <- ceiling(as.numeric(maturity - today)/period)
   #Days until the next coupon
-  dcoupn <- (182 - as.numeric(maturity - today)) %% 182
+  dcoupn <- (period - as.numeric(maturity - today)) %% period
 
-  p <-  coupn+coupn*(1/ytm - 1/(ytm*(1+ytm)^(ncoupn-1)))
-  p <-  p + (100/(1+ytm)^(ncoupn-1))
-  p <- p/(1+ytm)^(1-dcoupn/182)
+  #Numerator of the formula
+  num <- rep(coupn,ncoupn)
+  num[length(num)] <- num[length(num)] + 100
+
+  #Denominator of the formula
+  if (dcoupn == period) {
+    denom <- (1 + ytm)^(1:ncoupn)
+  } else {
+    denom <- (1+ytm)^(1-dcoupn/period)
+    denom <- c(denom,(1+ytm)^(2:ncoupn))
+  }
+  p <- sum(num/denom)
 
   return (p)
 }
@@ -36,86 +47,66 @@ BondPrice <- function(mat,day,tcoupn,ytm){
 #' @param day is the day in which the price is calculated
 #' @param tcoupn is the coupon rate of the bond (annualized)
 #' @param ytm is the Yield to Maturity of the Bond
+#' @param period is the time for every coupon payment
 #' @return the Macaulay Duration of the Bond
 #' @export
-MacaulayDuration <- function(mat,day,tcoupn, ytm) {
+MacaulayDuration <- function(mat,day,tcoupn, ytm, period=182) {
   #ytm anualizado
   #tcoup as decimals
   #dates as strings
 
   #Market price
-  mprice <- BondPrice(mat,day,tcoupn,ytm)
+  mprice <- BondPrice(mat,day,tcoupn,ytm,period)
   #Turn ytm to effective per period
-  ytm <-  182*ytm / 360
+  ytm <-  period*ytm/360
   #Coupon
-  coupn <- 182*100*tcoupn/360
+  coupn <- period*100*tcoupn/360
   #Day of pricing and maturity date
-  maturity <-  as.Date(mat, format="%Y/%m/%d")
-  today <- as.Date(day, format="%Y/%m/%d")
+  maturity <-  as.Date(mat, format="%Y-%m-%d")
+  today <- as.Date(day, format="%Y-%m-%d")
   #Number of coupons
-  ncoupn <- ceiling(as.numeric(maturity - today)/182)
+  ncoupn <- ceiling(as.numeric(maturity - today)/period)
   #Days until the next coupon
-  dcoupn <- (182 - as.numeric(maturity - today)) %% 182
+  dcoupn <- (period - as.numeric(maturity - today)) %% period
 
   #Numerator of the Macaulay Duration formula
   num <- seq(1,ncoupn,1)*coupn
   num[length(num)] <- num[length(num)] + 100*ncoupn
 
   #Denominator of the Macaulay Duration formula
-  if (dcoupn == 182) {
+  if (dcoupn == period) {
     denom <- (1 + ytm)^(1:ncoupn)
-  }
-  else {
-    denom <- (1+ytm)^(1-dcoupn/182)
+  } else {
+    denom <- (1+ytm)^(1-dcoupn/period)
     denom <- c(denom,(1+ytm)^(2:ncoupn))
   }
   mcd <- sum(num/denom)
+  #Half years
   mcd <- mcd/mprice
+  #Complete years
+  mcd <- mcd/(360/period)
   return (mcd)
 }
 
-#' @title Duration of a Bond
+#' @title Modified Duration of a Bond
 #' @description Calculates the Duration of a Bond with the maturity date, calculation date, coupon rate and YTM of the Bond
 #' @param mat is the maturity date of the Bond
 #' @param day is the day in which the price is calculated
 #' @param tcoupn is the coupon rate of the bond (annualized)
 #' @param ytm is the Yield to Maturity of the Bond
-#' @return the Duration of the Bond
+#' @param period is the time for every coupon payment
+#' @return the  Modified Duration of the Bond
 #' @export
-Duration <- function(mat,day,tcoupn, ytm) {
+ModifiedDuration <- function(mat,day,tcoupn, ytm,period=182) {
   #ytm anualizado
   #tcoup as decimals
   #dates as strings
 
-  #Market price
-  mprice <- BondPrice(mat,day,tcoupn,ytm)
-  #Turn ytm to effective per period
-  ytm <-  182*ytm / 360
-  #Coupon
-  coupn <- 182*100*tcoupn/360
-  #Day of pricing and maturity date
-  maturity <-  as.Date(mat, format="%Y/%m/%d")
-  today <- as.Date(day, format="%Y/%m/%d")
-  #Number of coupons
-  ncoupn <- ceiling(as.numeric(maturity - today)/182)
-  #Days until the next coupon
-  dcoupn <- (182 - as.numeric(maturity - today)) %% 182
-
-  #Numerator of the Duration formula
-  num <- seq(1,ncoupn,1) * coupn
-  num[length(num)] <- num[length(num)] + 100*ncoupn
-
-  #Denominator of the Duration formula
-  if (dcoupn == 182) {
-    denom <- (1 + ytm)^(1:ncoupn)
-  }
-  else {
-    denom <- (1+ytm)^(1-dcoupn/182)
-    denom <- c(denom,(1+ytm)^(2:ncoupn))
-  }
-  dur <- sum(num/denom)/(1+ytm)
-  dur <- dur/mprice
-  return (conv)
+  #Macaulay Duration
+  mdur <- MacaulayDuration(mat,day,tcoupn,ytm,period=182)
+  #Modified Duration
+  dur <- mdur/(1+ytm)
+  return (dur)
 }
 
 #' @title Convexity of a Bond
@@ -124,37 +115,37 @@ Duration <- function(mat,day,tcoupn, ytm) {
 #' @param day is the day in which the price is calculated
 #' @param tcoupn is the coupon rate of the bond (annualized)
 #' @param ytm is the Yield to Maturity of the Bond
+#' @param period is the time for every coupon payment
 #' @return the Convexity of the Bond
 #' @export
-Convexity <- function(mat,day,tcoupn, ytm) {
+Convexity <- function(mat,day,tcoupn, ytm, period=182) {
   #ytm anualizado
   #tcoup as decimals
   #dates as strings
 
   #Market price
-  mprice <- BondPrice(mat,day,tcoupn,ytm)
+  mprice <- BondPrice(mat,day,tcoupn,ytm,period=182)
   #Turn ytm to effective per period
-  ytm <-  182*ytm / 360
+  ytm <-  period*ytm / 360
   #Coupon
-  coupn <- 182*100*tcoupn/360
+  coupn <- period*100*tcoupn/360
   #Day of pricing and maturity date
-  maturity <-  as.Date(mat, format="%Y/%m/%d")
-  today <- as.Date(day, format="%Y/%m/%d")
+  maturity <-  as.Date(mat, format="%Y-%m-%d")
+  today <- as.Date(day, format="%Y-%m-%d")
   #Number of coupons
-  ncoupn <- ceiling(as.numeric(maturity - today)/182)
+  ncoupn <- ceiling(as.numeric(maturity - today)/period)
   #Days until the next coupon
-  dcoupn <- (182 - as.numeric(maturity - today)) %% 182
+  dcoupn <- (period - as.numeric(maturity - today)) %% period
 
   #Numerator of the Convexity formula
   num <- seq(1,ncoupn,1)^2 * seq(1,ncoupn,1) * coupn
   num[length(num)] <- num[length(num)] + 100*ncoupn*ncoupn^2
 
   #Denominator of the Convexity formula
-  if (dcoupn == 182) {
+  if (dcoupn == period) {
     denom <- (1 + ytm)^(1:ncoupn)
-  }
-  else {
-    denom <- (1+ytm)^(1-dcoupn/182)
+  } else {
+    denom <- (1+ytm)^(1-dcoupn/period)
     denom <- c(denom,(1+ytm)^(2:ncoupn))
   }
   conv <- sum(num/denom)/(1+ytm)^2
@@ -168,20 +159,19 @@ Convexity <- function(mat,day,tcoupn, ytm) {
 #' @param day is the day in which the price is calculated
 #' @param tcoupn is the coupon rate of the bond (annualized)
 #' @param ytm is the Yield to Maturity of the Bond
+#' @param period is the time for every coupon payment
 #' @param cyield is the change in the yield, by default is set to 1 bps.
 #' @return the Price Change in the Bond
 #' @export
-PriceChange <- function(mat,day,tcoupn,ytm,cyield=0.0001){
+PriceChange <- function(mat,day,tcoupn,ytm,period=182,cyield=0.0001){
   #ytm anualizado
   #tcoup as decimals
   #dates as strings
 
   #Duration
-  dur <-  Duration(mat,day,tcoupn,ytm)
+  dur <-  ModifiedDuration(mat,day,tcoupn,ytm,period)
   #Convexity
-  conv <- Convexity(mat,day,tcoupn,ytm)
-  #Price
-  price <- BondPrice(mat,day,tcoupn,ytm)
+  conv <- Convexity(mat,day,tcoupn,ytm,period)
   #Price Change
   pc <- -dur*cyield + 0.5*conv*cyield^2
 
@@ -189,41 +179,42 @@ PriceChange <- function(mat,day,tcoupn,ytm,cyield=0.0001){
 }
 
 #' @title Yield to Maturity of a Bond
-#' @description Calculates the price of a Bond with the maturity date, calculation date, coupon rate and YTM of the Bond
+#' @description Calculates the YTM of a Bond with the maturity date, calculation date, coupon rate and price of the Bond
 #' @param mat is the maturity date of the Bond
 #' @param day is the day in which the price is calculated
 #' @param tcoupn is the coupon rate of the bond (annualized)
 #' @param precio is the price of the bond
+#' @param period is the time for every coupon payment.
 #' @return the YTM of the Bond at the calculation date
 #' @export
-YTM <- function(mat,day,tcoupn,precio){
+YTM <- function(mat,day,tcoupn,precio, period=182){
   #ytm anualizado
   #tcoup as decimals
   #dates as strings
   #precio as numeric
 
   #Coupon
-  coupn <- 182*100*tcoupn/360
+  coupn <- period*100*tcoupn/360
   #Day of pricing and maturity date
-  maturity <-  as.Date(mat, format="%Y/%m/%d")
-  today <- as.Date(day, format="%Y/%m/%d")
+  maturity <-  as.Date(mat, format="%Y-%m-%d")
+  today <- as.Date(day, format="%Y-%m-%d")
   #Number of coupons
-  ncoupn <- ceiling(as.numeric(maturity - today)/182)
+  ncoupn <- ceiling(as.numeric(maturity - today)/period)
   #Days until the next coupon
-  dcoupn <- (182 - as.numeric(maturity - today)) %% 182
+  dcoupn <- (period - as.numeric(maturity - today)) %% period
 
   #################    Newton method    ###################
 
   #Function f(x) for the Newton method
   f <- function(ytm){
     #Numerator of the function
-    f_x <- BondPrice(mat,day,tcoupn,ytm) - precio
+    f_x <- BondPrice(mat,day,tcoupn,ytm,period) - precio
     return(f_x)
   }
 
   #Function f'(x) for the Newton method
   f1 <- function(ytm){
-    f <- -Duration(mat,day,tcoupn,ytm)*precio
+    f <- -ModifiedDuration(mat,day,tcoupn,ytm,period)*precio
     return(f)
   }
 
@@ -249,4 +240,46 @@ YTM <- function(mat,day,tcoupn,precio){
 bootstrap <- function(data,samp,size, remp = TRUE){
   datos <- matrix(c(replicate(samp,sample(data,size,replace = remp))),nrow = size, ncol = samp)
   return(datos)
+}
+
+#' @title Modified Duration of a Bond Portfolio
+#' @description Calculates the Duration of a Bond portfolio with the id's of the instruments and it's weights on the portfolio.
+#' @param date is the date in which the Portfolio Duration is going to be calculated.
+#' @param instruments is an array containing the instrument's id.
+#' @param weight is an array containing the instrument's weights in the portfolio.
+#' @return Modified Duration of the Portfolio.
+#' @export
+PortfolioDuration <- function(date=Sys.Date()-1,instruments,weight){
+  Bonos <- get_bonds(instruments)
+  Bonos$Peso <- weight
+  Bonos$TasaCupon <- Bonos$TasaCupon/100
+  Precios <- t(get_prices(date,instruments))[,1]
+  Bonos$Precio <- as.numeric(Precios[2:length(Precios)])
+  Bonos$FechaHoy <- rep(Sys.Date(),length(Bonos$id))
+  Bonos$YTM <- mapply(YTM,Bonos$FechaVencimiento,Bonos$FechaHoy,Bonos$TasaCupon,Bonos$Precio,Bonos$Frecuencia)
+  Bonos$Duracion <- mapply(ModifiedDuration,Bonos$FechaVencimiento,Bonos$FechaHoy,Bonos$TasaCupon,Bonos$YTM,
+                         Bonos$Frecuencia)
+  duration <- sum(Bonos$Duracion*Bonos$Peso)
+  return(duration)
+}
+
+#' @title Convexity of a Bond Portfolio
+#' @description Calculates the Convexity of a Bond portfolio with the id's of the instruments and it's weights on the portfolio.
+#' @param date is the date in which the Portfolio Convexity is going to be calculated.
+#' @param instruments is an array containing the instrument's id.
+#' @param weight is an array containing the instrument's weights in the portfolio.
+#' @return Convexity of the Portfolio.
+#' @export
+PortfolioConvexity <- function(date=Sys.Date()-1,instruments,weight){
+  Bonos <- get_bonds(instruments)
+  Bonos$Peso <- weight
+  Bonos$TasaCupon <- Bonos$TasaCupon/100
+  Precios <- t(get_prices(date,instruments))[,1]
+  Bonos$Precio <- as.numeric(Precios[2:length(Precios)])
+  Bonos$FechaHoy <- rep(Sys.Date(),length(Bonos$id))
+  Bonos$YTM <- mapply(YTM,Bonos$FechaVencimiento,Bonos$FechaHoy,Bonos$TasaCupon,Bonos$Precio,Bonos$Frecuencia)
+  Bonos$Convexidad <- mapply(Convexity,Bonos$FechaVencimiento,Bonos$FechaHoy,Bonos$TasaCupon,Bonos$YTM,
+                           Bonos$Frecuencia)
+  conv <- sum(Bonos$Convexidad*Bonos$Peso)
+  return(conv)
 }

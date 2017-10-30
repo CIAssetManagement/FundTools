@@ -4,7 +4,7 @@
 \alias{MacaulayDuration}
 \title{Macaulay Duration of a Bond}
 \usage{
-MacaulayDuration(mat, day, tcoupn, ytm)
+MacaulayDuration(mat, day, tcoupn, ytm, period = 182)
 }
 \arguments{
 \item{mat}{is the maturity date of the Bond}
@@ -14,6 +14,8 @@ MacaulayDuration(mat, day, tcoupn, ytm)
 \item{tcoupn}{is the coupon rate of the bond (annualized)}
 
 \item{ytm}{is the Yield to Maturity of the Bond}
+
+\item{period}{is the time for every coupon payment}
 }
 \value{
 the Macaulay Duration of the Bond

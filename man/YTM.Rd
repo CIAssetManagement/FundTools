@@ -4,7 +4,7 @@
 \alias{YTM}
 \title{Yield to Maturity of a Bond}
 \usage{
-YTM(mat, day, tcoupn, precio)
+YTM(mat, day, tcoupn, precio, period = 182)
 }
 \arguments{
 \item{mat}{is the maturity date of the Bond}
@@ -14,10 +14,12 @@ YTM(mat, day, tcoupn, precio)
 \item{tcoupn}{is the coupon rate of the bond (annualized)}
 
 \item{precio}{is the price of the bond}
+
+\item{period}{is the time for every coupon payment.}
 }
 \value{
 the YTM of the Bond at the calculation date
 }
 \description{
-Calculates the price of a Bond with the maturity date, calculation date, coupon rate and YTM of the Bond
+Calculates the YTM of a Bond with the maturity date, calculation date, coupon rate and price of the Bond
 }
