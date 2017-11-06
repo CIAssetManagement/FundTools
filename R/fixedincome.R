@@ -1,3 +1,32 @@
+#' @title Grade2Number
+#' @description Calculates a comparable number for Fitch, Moody's, S&P and HR Ratings grades.
+#' @param note is the grade assigned by the rating agencies.
+#' @return a comparable number for each note.
+#' @export
+Grade2Number <- function(note){
+  con <- DBI::dbConnect(drv=RMySQL::MySQL(),host="127.0.0.1",user="root", password="CIBANCO.00", dbname="mydb")
+  query <- paste0("SELECT Calificadora,Valor FROM calificaciones WHERE Calificadora IN ('",paste(note,collapse = "','"),"')")
+  number <- DBI::dbGetQuery(con, query)
+  DBI::dbDisconnect(con)
+  return(number)
+}
+
+#' @title Number2Grade
+#' @description Calculates a grade for a given number
+#' @param number is the number given by the user.
+#' @return a grade comparable with Fitch, Moody's, S&P and HR Ratings grades.
+#' @export
+Number2Grade <- function(number){
+  part1 <- floor(number)
+  part2 <- ifelse(number - part1 < 0.5,".0",".5")
+  parts <- paste0(part1,part2)
+
+  note <- switch(parts,"10"="AAA","9.5"="AA+","9"="AA","8.5"="AA-","8"="A+","7.5"="A","7"="A-",
+                 "6.5"="BBB+","6"="BBB","5.5"="BBB-","5"="BB+","4.5"="BB","4"="BB-","3.5"="B+",
+                 "3"="B","2.5"="B-","2"="C+","1.5"="C","1"="C-","0"="-")
+  return(note)
+}
+
 #' @title Price of a Bond
 #' @description Calculates the price of a Bond with the maturity date, calculation date, coupon rate and YTM of the Bond
 #' @param mat is the maturity date of the Bond
