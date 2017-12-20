@@ -70,3 +70,34 @@ get_bonds <- function(id = NULL){
   DBI::dbDisconnect(con)
   datos
 }
+
+#' @title Get the node of the dates needed for a specified rate.
+#' @description Function that does a query from a mysql database in order to obtain the node of some rates
+#' @param fecha is the dates vector of which the nodes are needed.
+#' @param id is the id vector of which nodes information must be obtained.
+#' @return a dataframe with nodes id, date and value.
+#' @export
+get_rates <- function(fecha = NULL, id = NULL){
+  con <- DBI::dbConnect(drv=RMySQL::MySQL(),host="127.0.0.1",user="root", password="CIBANCO.00", dbname="mydb")
+  query <- paste("SELECT id,fecha,nivel FROM tasas")
+  if(!is.null(fecha) | !is.null(id)) {
+    query <- paste(query, "WHERE")
+    if(!is.null(fecha)) {
+      query <- paste0(query, " fecha IN ('", paste(fecha, collapse = "','"), "')")
+      if (!is.null(id)) {
+        query <- paste(query, "AND")
+      }
+    }
+    if(!is.null(id)) {
+      query <- paste0(query, " id IN ('", paste(id, collapse="','"), "')")
+    }
+  }
+  niveles <- DBI::dbGetQuery(con, query)
+  DBI::dbDisconnect(con)
+  niveles %>%
+    #as date
+    mutate(fecha = as.Date(fecha)) %>%
+    #repo
+    tidyr::spread(id, nivel) %>%
+    data.frame(check.names = FALSE)
+}
