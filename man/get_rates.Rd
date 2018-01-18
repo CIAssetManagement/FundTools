@@ -2,7 +2,7 @@
 % Please edit documentation in R/prices_dates.R
 \name{get_rates}
 \alias{get_rates}
-\title{Get the node of the dates needed for a specified rate.}
+\title{Get Rates}
 \usage{
 get_rates(fecha = NULL, id = NULL)
 }
@@ -15,5 +15,5 @@ get_rates(fecha = NULL, id = NULL)
 a dataframe with nodes id, date and value.
 }
 \description{
-Function that does a query from a mysql database in order to obtain the node of some rates
+Function that does a query from a mysql database in order to obtain the node of some rates: CETES-28,CETES-91,CETES-182,CETES-364,Fondeo-BancarioUS,FondeoBancarioMX,LIBOR-1m,LIBOR-3m,LIBOR-6m,LIBOR-12m,Tasa-FED,Tasa-Banxico,TIIE-28,TIIE-91,TIIE-182,Treasury-2y,Treasury-5y,Treasury-10y,UDI.
 }

@@ -18,7 +18,7 @@ magrittr::'%>%'
 #' @export
 get_prices <- function(fecha = NULL, id = NULL){
   con <- DBI::dbConnect(drv=RMySQL::MySQL(),host="127.0.0.1",user="root", password="CIBANCO.00", dbname="mydb")
-  query <- paste("SELECT fecha, id, precio FROM prices")
+  query <- paste("SELECT fecha, id, Precio_limpio FROM prices")
   if(!is.null(fecha) | !is.null(id)) {
     query <- paste(query, "WHERE")
     if(!is.null(fecha)) {
@@ -37,7 +37,7 @@ get_prices <- function(fecha = NULL, id = NULL){
     #as date
     mutate(fecha = as.Date(fecha)) %>%
     #repo
-    tidyr::spread(id, precio) %>%
+    tidyr::spread(id, Precio_limpio) %>%
     data.frame(check.names = FALSE)
 }
 
@@ -55,7 +55,7 @@ seq_Date <- function(fecha = NULL){
   return(fechas)
 }
 
-#' @title Get Bond's Characteristics
+#' @title Get Bonds
 #' @description Function that does a query from a mysql database in order to obtain characteristics of bonds.
 #' @param id is the id vector of which bonds information must be obtained.
 #' @return a dataframe with Issuing date, Maturity date, Coupon rate, Type of rate, Spread and Grade of the selected Bonds.
@@ -71,8 +71,8 @@ get_bonds <- function(id = NULL){
   datos
 }
 
-#' @title Get the node of the dates needed for a specified rate.
-#' @description Function that does a query from a mysql database in order to obtain the node of some rates
+#' @title Get Rates
+#' @description Function that does a query from a mysql database in order to obtain the node of some rates: CETES-28,CETES-91,CETES-182,CETES-364,Fondeo-BancarioUS,FondeoBancarioMX,LIBOR-1m,LIBOR-3m,LIBOR-6m,LIBOR-12m,Tasa-FED,Tasa-Banxico,TIIE-28,TIIE-91,TIIE-182,Treasury-2y,Treasury-5y,Treasury-10y,UDI.
 #' @param fecha is the dates vector of which the nodes are needed.
 #' @param id is the id vector of which nodes information must be obtained.
 #' @return a dataframe with nodes id, date and value.
@@ -80,6 +80,37 @@ get_bonds <- function(id = NULL){
 get_rates <- function(fecha = NULL, id = NULL){
   con <- DBI::dbConnect(drv=RMySQL::MySQL(),host="127.0.0.1",user="root", password="CIBANCO.00", dbname="mydb")
   query <- paste("SELECT id,fecha,nivel FROM tasas")
+  if(!is.null(fecha) | !is.null(id)) {
+    query <- paste(query, "WHERE")
+    if(!is.null(fecha)) {
+      query <- paste0(query, " fecha IN ('", paste(fecha, collapse = "','"), "')")
+      if (!is.null(id)) {
+        query <- paste(query, "AND")
+      }
+    }
+    if(!is.null(id)) {
+      query <- paste0(query, " id IN ('", paste(id, collapse="','"), "')")
+    }
+  }
+  niveles <- DBI::dbGetQuery(con, query)
+  DBI::dbDisconnect(con)
+  niveles %>%
+    #as date
+    mutate(fecha = as.Date(fecha)) %>%
+    #repo
+    tidyr::spread(id, nivel) %>%
+    data.frame(check.names = FALSE)
+}
+
+#' @title Get Indices
+#' @description Function that does a query from a mysql database in order to obtain a level of an index.
+#' @param fecha is the dates vector of which the nodes are needed.
+#' @param id is the id vector of which the level information must be obtained.
+#' @return a dataframe with nodes id, date and value.
+#' @export
+get_indices <- function(fecha = NULL, id = NULL){
+  con <- DBI::dbConnect(drv=RMySQL::MySQL(),host="127.0.0.1",user="root", password="CIBANCO.00", dbname="mydb")
+  query <- paste("SELECT id,fecha,nivel FROM indices")
   if(!is.null(fecha) | !is.null(id)) {
     query <- paste(query, "WHERE")
     if(!is.null(fecha)) {

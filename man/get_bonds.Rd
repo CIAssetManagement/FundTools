@@ -2,7 +2,7 @@
 % Please edit documentation in R/prices_dates.R
 \name{get_bonds}
 \alias{get_bonds}
-\title{Get Bond's Characteristics}
+\title{Get Bonds}
 \usage{
 get_bonds(id = NULL)
 }
