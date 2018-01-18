@@ -4,14 +4,17 @@
 \alias{RiskValues}
 \title{Historical VaR and CVaR of a Security's Portfolio}
 \usage{
-RiskValues(instruments, shares, cash, confidence = 0.95, period = 252)
+RiskValues(fecha, instruments, shares, type, confidence = 0.95,
+  period = 252)
 }
 \arguments{
+\item{fecha}{is the date of calculation.}
+
 \item{instruments}{is an array of instruments.}
 
 \item{shares}{is an array of each instrument's shares.}
 
-\item{cash}{is the amount of cash in the portfolio.}
+\item{type}{is the type of the portfolio: "stocks" or "bonds".}
 
 \item{confidence}{is the level of confidence at which the VaR and CVaR are calculated.}
 
