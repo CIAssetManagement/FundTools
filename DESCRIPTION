@@ -13,4 +13,6 @@ Imports: dplyr,
     RMySQL,
     tidyr,
     DBI,
-    stats
+    stats,
+    lubridate,
+    rdrop2

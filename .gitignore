@@ -1,6 +1,6 @@
 .Rproj.user
 .Rhistory
-.RData
 NAMESPACE
 man/reexports.Rd
 man/reexports.Rd
+.httr-oauth

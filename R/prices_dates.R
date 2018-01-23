@@ -4,6 +4,7 @@ devtools::use_package("RMySQL")
 devtools::use_package("tidyr")
 devtools::use_package("DBI")
 devtools::use_package("stats")
+devtools::use_package("lubridate")
 
 #'@import dplyr
 #'
