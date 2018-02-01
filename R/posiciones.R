@@ -103,7 +103,6 @@ get_contrato_returns <- function(position, cumulative = FALSE) {
 #' @return a dataframe with dates and prices as requested.
 #' @export
 diah <-  function(fecha, tipo = "Habil"){
-  load(file = ".RData",envir = globalenv())
   festivos$dias <- as.Date(festivos$dias,format="%d/%m/%Y")
   fechabase0 <- as.Date("2017-08-06")
   if(tipo == "Last"){
