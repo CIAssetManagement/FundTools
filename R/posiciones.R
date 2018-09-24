@@ -95,27 +95,3 @@ get_contrato_returns <- function(position, cumulative = FALSE) {
     coredata(ret_df) <- apply(coredata(ret_df), 2, function(row) row <- row / ret_df[1, ])
   }
 }
-
-#' @title DiaH
-#' @description Function that tells if the given date is business date or returns the last business date.
-#' @param fecha is a date in %Y-%m-%d format.
-#' @param tipo "Last" returns the last business day, any other value returns if the given date is business date.
-#' @return a dataframe with dates and prices as requested.
-#' @export
-diah <-  function(fecha, tipo = "Habil"){
-  festivos$dias <- as.Date(festivos$dias,format="%d/%m/%Y")
-  fechabase0 <- as.Date("2017-08-06")
-  if(tipo == "Last"){
-    if(as.integer(fecha - fechabase0 ) %% 7 == 6 | as.integer(fecha - fechabase0 ) %% 7 == 0 | fecha %in% festivos$dias){
-      return(diah(fecha-1))
-    } else {
-        return(fecha)
-      }
-  } else {
-    dia <- "Habil"
-    if(as.integer(fecha - fechabase0 ) %% 7 == 6){dia <- "Inhabil"}
-    if(as.integer(fecha - fechabase0 ) %% 7 == 0){dia <- "Inhabil"}
-    if(fecha %in% festivos$dias){dia <- "Inhabil"}
-    return(dia)
-  }
-}

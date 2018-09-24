@@ -19,7 +19,7 @@ magrittr::'%>%'
 #' @export
 get_prices <- function(fecha = NULL, id = NULL){
   con <- DBI::dbConnect(drv=RMySQL::MySQL(),host="127.0.0.1",user="root", password="CIBANCO.00", dbname="mydb")
-  query <- paste("SELECT fecha, id, Precio_limpio FROM prices")
+  query <- paste("SELECT fecha, id, Precio_sucio FROM prices")
   if(!is.null(fecha) | !is.null(id)) {
     query <- paste(query, "WHERE")
     if(!is.null(fecha)) {
@@ -38,7 +38,7 @@ get_prices <- function(fecha = NULL, id = NULL){
     #as date
     mutate(fecha = as.Date(fecha)) %>%
     #repo
-    tidyr::spread(id, Precio_limpio) %>%
+    tidyr::spread(id, Precio_sucio) %>%
     data.frame(check.names = FALSE)
 }
 

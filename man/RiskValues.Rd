@@ -5,7 +5,7 @@
 \title{Historical VaR and CVaR of a Security's Portfolio}
 \usage{
 RiskValues(fecha = Sys.Date() - 1, instruments, shares, efectivo,
-  confidence = 0.95, period = 252)
+  chequera = 0, confidence = 0.95, period = 252)
 }
 \arguments{
 \item{fecha}{is the date of calculation.}
@@ -14,7 +14,9 @@ RiskValues(fecha = Sys.Date() - 1, instruments, shares, efectivo,
 
 \item{shares}{is an array of each instrument's shares.}
 
-\item{efectivo}{is the quantity of cash in the portfolio.}
+\item{efectivo}{is the amount of cash in the portfolio.}
+
+\item{chequera}{is the amount of dollars in the portfolio.}
 
 \item{confidence}{is the level of confidence at which the VaR and CVaR are calculated.}
 
