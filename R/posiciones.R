@@ -95,3 +95,37 @@ get_contrato_returns <- function(position, cumulative = FALSE) {
     coredata(ret_df) <- apply(coredata(ret_df), 2, function(row) row <- row / ret_df[1, ])
   }
 }
+
+
+#' @title Fetch holdings data
+#' @description Construct a mysql query for the selected dates and contrato and sends it to the sql database posiciones
+#' @details This function will return a data.frame with holdings information from one or several dates
+#' When no contrato is given, it will fetch the information of every contrato
+#' @param fecha A vector of dates that can be of class character or Date but is expected to be in the format aaaa-mm-dd
+#' @param contrato A character or integer vector with the number of contratos
+#' @return A data.frame with the holding of the given contratos in the selected dates. If no contrato is given, it will return the information of every contrato.
+#' @examples
+#' get_fondos("2015-12-31")
+#' get_fondos("2015-12-31", contrato = "25774")
+#' @export
+get_fondos <- function(fecha, contrato = NULL){
+
+  con <- DBI::dbConnect(RMySQL::MySQL(), host='127.0.0.1', username="root", password="CIBANCO.00", dbname="mydb")
+
+  query <- paste("select * from carterasfondos where ",
+                 "fecha in ('",
+                 paste(lubridate::ymd(fecha), collapse = "','"),
+                 "') ",
+                 sep="")
+
+  if(!is.null(contrato)) {
+    query <- paste(query,
+                   "and contrato in ('",
+                   paste(contrato, collapse ="','"),
+                   "') ",
+                   sep="")
+  }
+  pos <- DBI::dbGetQuery(con, query)
+  DBI::dbDisconnect(con)
+  pos[pos$tit != 0, ]
+}
